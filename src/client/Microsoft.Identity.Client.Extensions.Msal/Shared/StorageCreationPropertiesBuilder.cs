@@ -167,6 +167,11 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             return this;
         }
 
+        public StorageCreationPropertiesBuilder WithLinuxPass()
+        {
+            return this;
+        }
+
         /// <summary>
         /// Use to allow storage of secrets in the cacheFile which was configured in the constructor of this class.
         /// WARNING Secrets are stored in PLAINTEXT!

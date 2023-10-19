@@ -341,6 +341,7 @@ namespace ManualTestApp
                 .WithMacKeyChain(
                     Config.KeyChainServiceName,
                     Config.KeyChainAccountName)
+                .WithLinuxPass()
                 .WithCacheChangedEvent( // do NOT use unless really necessary, high perf penalty!
                     Config.ClientId,
                     Config.Authority)
