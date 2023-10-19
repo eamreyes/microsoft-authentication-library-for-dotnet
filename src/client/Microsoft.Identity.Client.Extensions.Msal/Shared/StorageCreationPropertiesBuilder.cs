@@ -26,6 +26,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
         private int _lockRetryCount = CrossPlatLock.LockfileRetryCountDefault;
         private bool _useLinuxPlaintextFallback = false;
         private bool _usePlaintextFallback = false;
+        private bool _useLinuxPass = false;
 
         /// <summary>
         /// Constructs a new instance of this builder associated with the given cache file.
@@ -67,6 +68,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
                 _macKeyChainAccountName,
                 _useLinuxPlaintextFallback,
                 _usePlaintextFallback,
+                _useLinuxPass,
                 _keyringSchemaName,
                 _keyringCollection,
                 _keyringSecretLabel,
@@ -169,6 +171,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
 
         public StorageCreationPropertiesBuilder WithLinuxPass()
         {
+            _useLinuxPass = true;
             return this;
         }
 

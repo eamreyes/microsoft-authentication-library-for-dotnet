@@ -23,6 +23,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             string macKeyChainAccountName,
             bool useLinuxPlaintextFallback,
             bool usePlaintextFallback,
+            bool useLinuxPass,
             string keyringSchemaName,
             string keyringCollection,
             string keyringSecretLabel,
@@ -38,6 +39,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             CacheFilePath = Path.Combine(CacheDirectory, CacheFileName);
 
             UseLinuxUnencryptedFallback = useLinuxPlaintextFallback;
+            UseLinuxPass = useLinuxPass;
             UseUnencryptedFallback = usePlaintextFallback;
 
             MacKeyChainServiceName = macKeyChainServiceName;
@@ -142,6 +144,11 @@ namespace Microsoft.Identity.Client.Extensions.Msal
         /// </summary>
         public readonly bool UseLinuxUnencryptedFallback;
 
+        /// <summary>
+        /// Flag which indicates that pass password store will be used on Linux for secret storage
+        /// </summary>
+        public readonly bool UseLinuxPass;
+        
         /// <summary>
         /// Flag which indicates that a plaintext file will be used on all OSes for secret storage
         /// </summary>
