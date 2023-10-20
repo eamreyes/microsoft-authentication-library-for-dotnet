@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Microsoft.Identity.Client.Extensions.Msal.Accessors;
 using Microsoft.Identity.Extensions;
 
 namespace Microsoft.Identity.Client.Extensions.Msal
@@ -88,6 +89,10 @@ namespace Microsoft.Identity.Client.Extensions.Msal
                     if (creationProperties.UseLinuxUnencryptedFallback)
                     {
                         cacheAccessor = new FileAccessor(creationProperties.CacheFilePath, setOwnerOnlyPermissions: true, actualLogger);
+                    }
+                    else if (creationProperties.UseLinuxPass)
+                    {
+                        cacheAccessor = new LinuxPassAccessor(creationProperties.CacheFilePath, setOwnerOnlyPermissions: true, actualLogger);
                     }
                     else
                     {
