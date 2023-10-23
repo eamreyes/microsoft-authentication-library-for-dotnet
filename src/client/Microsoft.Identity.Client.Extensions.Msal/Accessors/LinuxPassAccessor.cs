@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.Identity.Client.Extensions.Msal.Accessors
@@ -26,37 +27,71 @@ namespace Microsoft.Identity.Client.Extensions.Msal.Accessors
         public void Clear()
         {
             _logger.LogInformation("Deleting cache file");
-            FileIOWithRetries.DeleteCacheFile(_cacheFilePath, _logger);
         }
 
         public ICacheAccessor CreateForPersistenceValidation()
         {
-            return new FileAccessor(_cacheFilePath + ".test", _setOwnerOnlyPermission, _logger);
+            return new LinuxPassAccessor(_cacheFilePath, _setOwnerOnlyPermission, _logger);
         }
 
         public byte[] Read()
         {
-            _logger.LogInformation("Reading from file");
-
-            byte[] fileData = null;
-            bool cacheFileExists = File.Exists(_cacheFilePath);
-            _logger.LogInformation($"Cache file exists? '{cacheFileExists}'");
-
-            if (cacheFileExists)
-            {
-                FileIOWithRetries.TryProcessFile(() =>
-                {
-                    fileData = File.ReadAllBytes(_cacheFilePath);
-                    _logger.LogInformation($"Read '{fileData.Length}' bytes from the file");
-                }, _logger);
-            }
-
-            return fileData;
+            throw new NotImplementedException();
         }
 
         public void Write(byte[] data)
         {
-            FileIOWithRetries.CreateAndWriteToFile(_cacheFilePath, data, _setOwnerOnlyPermission, _logger);
+            throw new NotImplementedException();
+        }
+
+        private string GetGpgPath()
+        {
+            if (TryLocateExecutable("gpg2", null, out string gpg2Path))
+            {
+                _logger.LogInformation($"Using PATH-located GPG (gpg2) executable: {gpg2Path}");
+                return gpg2Path;
+            }
+
+            if (TryLocateExecutable("gpg", null,  out string gpgPath))
+            {
+                _logger.LogInformation($"Using PATH-located GPG (gpg) executable: {gpgPath}");
+                return gpgPath;
+            }
+            throw new Exception("Failed to find gpg on PATH");
+        }
+
+        private bool TryLocateExecutable(string program, ICollection<string> pathsToIgnore, out string path)
+        {
+            // On UNIX-like systems we would normally use the "which" utility to locate a program,
+            // but since distributions don't always place "which" in a consistent location we cannot
+            // find it! Oh the irony..
+            // We could also try using "env" to then locate "which", but the same problem exists in
+            // that "env" isn't always in a standard location.
+            //
+            // On Windows we should avoid using the equivalent utility "where.exe" because this will
+            // include the current working directory in the search, and we don't want this.
+            //
+            // The upshot of the above means we cannot use either of "which" or "where.exe" and must
+            // instead manually scan the PATH variable looking for the program.
+            // At least both Windows and UNIX use the same name for the $PATH or %PATH% variable!
+            var pathValue = System.Environment.GetEnvironmentVariable("PATH");
+            if (!string.IsNullOrEmpty(pathValue))
+            {
+                string[] paths = pathValue.Split(':');
+                foreach (var basePath in paths)
+                {
+                    string candidatePath = Path.Combine(basePath, program);
+                    if (File.Exists(candidatePath) && (pathsToIgnore is null ||
+                        !pathsToIgnore.Contains(candidatePath, StringComparer.OrdinalIgnoreCase)))
+                    {
+                        path = candidatePath;
+                        return true;
+                    }
+                }
+            }
+
+            path = null;
+            return false;
         }
     }
 }
